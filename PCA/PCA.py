@@ -101,10 +101,24 @@ def test_on_PCA():
     for i in range(5):
         for j in range(5):
             k += 1
-            plt.subplot(5, 5, k)
+            ax = plt.subplot(5, 5, k)
+            # to make the ticks not show
+            ax.xaxis.set_major_locator((NullLocator()))
+            ax.yaxis.set_major_locator((NullLocator()))
             image = recon_data[arg_index[5 * i + j], :].reshape((8, 8))
             plt.imshow(image, cmap=cm.gray_r)
     plt.show()
 
 if __name__ == "__main__":
     test_on_PCA()
+
+    # The code to test the ticks
+    # fig = plt.figure()
+    # ax = fig.add_subplot(1, 1, 1)
+    #
+    # ax.xaxis.set_major_locator((NullLocator()))
+    # ax.yaxis.set_major_locator((NullLocator()))
+    #
+    # plt.plot([1, 1], [2, 3])
+    #
+    # plt.show()
