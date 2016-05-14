@@ -6,7 +6,7 @@
 # Email  : zouxy09@qq.com
 #################################################
 
-from numpy import *
+import numpy as np
 import time
 import matplotlib.pyplot as plt
 
@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 def calcKernelValue(matrix_x, sample_x, kernelOption):
     kernelType = kernelOption[0]
     numSamples = matrix_x.shape[0]
-    kernelValue = mat(zeros((numSamples, 1)))
+    kernelValue = np.mat(np.zeros((numSamples, 1)))
 
     if kernelType == 'linear':
         kernelValue = matrix_x * sample_x.T
@@ -25,7 +25,7 @@ def calcKernelValue(matrix_x, sample_x, kernelOption):
             sigma = 1.0
         for i in xrange(numSamples):
             diff = matrix_x[i, :] - sample_x
-            kernelValue[i] = exp(diff * diff.T / (-2.0 * sigma**2))
+            kernelValue[i] = np.exp(diff * diff.T / (-2.0 * sigma**2))
     else:
         raise NameError('Not support kernel type! You can use linear or rbf!')
     return kernelValue
@@ -34,7 +34,7 @@ def calcKernelValue(matrix_x, sample_x, kernelOption):
 # calculate kernel matrix given train set and kernel type
 def calcKernelMatrix(train_x, kernelOption):
     numSamples = train_x.shape[0]
-    kernelMatrix = mat(zeros((numSamples, numSamples)))
+    kernelMatrix = np.mat(np.zeros((numSamples, numSamples)))
     for i in xrange(numSamples):
         kernelMatrix[:, i] = calcKernelValue(train_x, train_x[i, :], kernelOption)
     return kernelMatrix
@@ -48,17 +48,17 @@ class SVMStruct:
         self.C = C             # slack variable
         self.toler = toler     # termination condition for iteration
         self.numSamples = dataSet.shape[0] # number of samples
-        self.alphas = mat(zeros((self.numSamples, 1))) # Lagrange factors for all samples
+        self.alphas = np.mat(np.zeros((self.numSamples, 1))) # Lagrange factors for all samples
         self.b = 0
-        self.errorCache = mat(zeros((self.numSamples, 2)))
+        self.errorCache = np.mat(np.zeros((self.numSamples, 2)))
         self.kernelOpt = kernelOption
         self.kernelMat = calcKernelMatrix(self.train_x, self.kernelOpt)
 
 
 # calculate the error for alpha k
 def calcError(svm, alpha_k):
-    output_k = float(multiply(svm.alphas, svm.train_y).T * svm.kernelMat[:, alpha_k] + svm.b)
-    error_k = output_k - float(svm.train_y[alpha_k])
+    output_k = np.float(np.multiply(svm.alphas, svm.train_y).T * svm.kernelMat[:, alpha_k] + svm.b)
+    error_k = output_k - np.float(svm.train_y[alpha_k])
     return error_k
 
 
@@ -71,7 +71,7 @@ def updateError(svm, alpha_k):
 # select alpha j which has the biggest step
 def selectAlpha_j(svm, alpha_i, error_i):
     svm.errorCache[alpha_i] = [1, error_i] # mark as valid(has been optimized)
-    candidateAlphaList = nonzero(svm.errorCache[:, 0].A)[0] # mat.A return array
+    candidateAlphaList = np.nonzero(svm.errorCache[:, 0].A)[0] # mat.A return array
     maxStep = 0; alpha_j = 0; error_j = 0
 
     # find the alpha with max iterative step
@@ -88,7 +88,7 @@ def selectAlpha_j(svm, alpha_i, error_i):
     else:
         alpha_j = alpha_i
         while alpha_j == alpha_i:
-            alpha_j = int(random.uniform(0, svm.numSamples))
+            alpha_j = int(np.random.uniform(0, svm.numSamples))
         error_j = calcError(svm, alpha_j)
 
     return alpha_j, error_j
@@ -181,7 +181,7 @@ def trainSVM(train_x, train_y, C, toler, maxIter, kernelOption = ('rbf', 1.0)):
     startTime = time.time()
 
     # init data struct for svm
-    svm = SVMStruct(mat(train_x), mat(train_y), C, toler, kernelOption)
+    svm = SVMStruct(np.mat(train_x), np.mat(train_y), C, toler, kernelOption)
 
     # start training
     entireSet = True
@@ -202,7 +202,7 @@ def trainSVM(train_x, train_y, C, toler, maxIter, kernelOption = ('rbf', 1.0)):
             iterCount += 1
         # update alphas over examples where alpha is not 0 & not C (not on boundary)
         else:
-            nonBoundAlphasList = nonzero((svm.alphas.A > 0) * (svm.alphas.A < svm.C))[0]
+            nonBoundAlphasList = np.nonzero((svm.alphas.A > 0) * (svm.alphas.A < svm.C))[0]
             for i in nonBoundAlphasList:
                 alphaPairsChanged += innerLoop(svm, i)
             print '---iter:%d non boundary, alpha pairs changed:%d' % (iterCount, alphaPairsChanged)
@@ -220,25 +220,25 @@ def trainSVM(train_x, train_y, C, toler, maxIter, kernelOption = ('rbf', 1.0)):
 
 # testing your trained svm model given test set
 def testSVM(svm, test_x, test_y):
-    test_x = mat(test_x)
-    test_y = mat(test_y)
+    test_x = np.mat(test_x)
+    test_y = np.mat(test_y)
     numTestSamples = test_x.shape[0]
-    supportVectorsIndex = nonzero(svm.alphas.A > 0)[0]
+    supportVectorsIndex = np.nonzero(svm.alphas.A > 0)[0]
     supportVectors      = svm.train_x[supportVectorsIndex]
     supportVectorLabels = svm.train_y[supportVectorsIndex]
     supportVectorAlphas = svm.alphas[supportVectorsIndex]
     matchCount = 0
     for i in xrange(numTestSamples):
         kernelValue = calcKernelValue(supportVectors, test_x[i, :], svm.kernelOpt)
-        predict = kernelValue.T * multiply(supportVectorLabels, supportVectorAlphas) + svm.b
-        if sign(predict) == sign(test_y[i]):
+        predict = kernelValue.T * np.multiply(supportVectorLabels, supportVectorAlphas) + svm.b
+        if np.sign(predict) == np.sign(test_y[i]):
             matchCount += 1
     accuracy = float(matchCount) / numTestSamples
     return accuracy
 
 
 # show your trained svm model only available with 2-D data
-def showSVM(svm):
+def showSVM(svm,dataSet, labels):
     if svm.train_x.shape[1] != 2:
         print "Sorry! I can not draw because the dimension of your data is not 2!"
         return 1
@@ -249,19 +249,23 @@ def showSVM(svm):
             plt.plot(svm.train_x[i, 0], svm.train_x[i, 1], 'or')
         elif svm.train_y[i] == 1:
             plt.plot(svm.train_x[i, 0], svm.train_x[i, 1], 'ob')
-
+    plt.figure()
+    plt.show()
     # mark support vectors
-    supportVectorsIndex = nonzero(svm.alphas.A > 0)[0]
+    supportVectorsIndex = np.nonzero(svm.alphas.A > 0)[0]
     for i in supportVectorsIndex:
         plt.plot(svm.train_x[i, 0], svm.train_x[i, 1], 'oy')
 
     # draw the classify line
-    w = zeros((2, 1))
+    # w = np.zeros((2, 1))
+    w = np.random.rand(2, 1)
     for i in supportVectorsIndex:
-        w += multiply(svm.alphas[i] * svm.train_y[i], svm.train_x[i, :].T)
+        w += np.multiply(svm.alphas[i] * svm.train_y[i], svm.train_x[i, :].T)
     min_x = min(svm.train_x[:, 0])[0, 0]
     max_x = max(svm.train_x[:, 0])[0, 0]
     y_min_x = float(-svm.b - w[0] * min_x) / w[1]
     y_max_x = float(-svm.b - w[0] * max_x) / w[1]
-    plt.plot([min_x, max_x], [y_min_x, y_max_x], '-g')
-    plt.show() 
+    # plt.plot([min_x, max_x], [y_min_x, y_max_x], '-g')
+    # plt.plot(dataSet[0:100, 0], dataSet[0:100, 1], '.b')
+    # plt.plot(dataSet[100:200, 0], dataSet[100:200, 1], '.r')
+    plt.show()
