@@ -19,19 +19,14 @@ def test_on_svm():
     dataSet = []
     labels = []
     N = 100
-    dataSet, labels = generate_two_dimension_data(N)
-    # fileIn = open('E:/Python/Machine Learning in Action/testSet.txt')
-    # for line in fileIn.readlines():
-    #     lineArr = line.strip().split('\t')
-    #     dataSet.append([float(lineArr[0]), float(lineArr[1])])
-    #     labels.append(float(lineArr[2]))
+    # dataSet, labels = generate_two_dimension_data(N)
     #
-    # dataSet = np.mat(dataSet)
-    # labels = np.mat(labels).T
-    train_x = dataSet[0:81, :]
-    train_y = labels[0:81, :]
-    test_x = dataSet[80:101, :]
-    test_y = labels[80:101, :]
+    # train_x = dataSet[0:81, :]
+    # train_y = labels[0:81, :]
+    # test_x = dataSet[80:101, :]
+    # test_y = labels[80:101, :]
+    train_x, train_y = ini_data(6, 20, 40, 80)
+    test_x, test_y = ini_data(6, 20, 40, 20)
 
     ## step 2: training...
     print "step 2: training..."
@@ -54,6 +49,24 @@ def generate_two_dimension_data(N):
     X = np.vstack([np.random.rand(N, 2), np.random.rand(N, 2)+2])
     y = np.vstack([np.tile([0], [N, 1]), np.tile([1], [N, 1])])
     return X, y
+
+
+def ini_data(Sigma, Mu1, Mu2, N):
+    # initial the data set
+    # the data has the same mean value but a different variance
+    X = np.zeros((N, 2))
+    Y = np.zeros((N, 1))
+
+    for i in xrange(0, N):
+        if np.random.random(1) > 0.5:
+            X[i, 0] = np.random.normal()*Sigma + Mu1
+            X[i, 1] = np.random.normal()*10 + Mu1
+            Y[i, 0] = -1
+        else:
+            X[i, 0] = np.random.normal()*Sigma + Mu2
+            X[i, 1] = np.random.normal()*5 + Mu2
+            Y[i, 0] = 1
+    return X, Y
 
 
 if __name__ == "__main__":

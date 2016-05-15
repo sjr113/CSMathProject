@@ -242,15 +242,16 @@ def showSVM(svm,dataSet, labels):
     if svm.train_x.shape[1] != 2:
         print "Sorry! I can not draw because the dimension of your data is not 2!"
         return 1
-
+    plt.figure()
     # draw all samples
     for i in xrange(svm.numSamples):
         if svm.train_y[i] == -1:
             plt.plot(svm.train_x[i, 0], svm.train_x[i, 1], 'or')
         elif svm.train_y[i] == 1:
             plt.plot(svm.train_x[i, 0], svm.train_x[i, 1], 'ob')
-    plt.figure()
-    plt.show()
+    #
+    # plt.show()
+    # plt.figure()
     # mark support vectors
     supportVectorsIndex = np.nonzero(svm.alphas.A > 0)[0]
     for i in supportVectorsIndex:
@@ -261,11 +262,20 @@ def showSVM(svm,dataSet, labels):
     w = np.random.rand(2, 1)
     for i in supportVectorsIndex:
         w += np.multiply(svm.alphas[i] * svm.train_y[i], svm.train_x[i, :].T)
-    min_x = min(svm.train_x[:, 0])[0, 0]
-    max_x = max(svm.train_x[:, 0])[0, 0]
-    y_min_x = float(-svm.b - w[0] * min_x) / w[1]
-    y_max_x = float(-svm.b - w[0] * max_x) / w[1]
+
+    # print np.argmin(svm.train_x[:, 0])
+    # print max(svm.train_x[:, 0])
+    # min_x = min(svm.train_x[:, 0])[0, 0]
+    # max_x = max(svm.train_x[:, 0])[0, 0]
+    # y_min_x = float(-svm.b - w[0] * min_x) / w[1]
+    # y_max_x = float(-svm.b - w[0] * max_x) / w[1]
     # plt.plot([min_x, max_x], [y_min_x, y_max_x], '-g')
+    # x = np.arange(min_x, max_x, 0.1)
+    # y = np.zeros((len(x), 1))
+    # for i in range(len(x)):
+    #     y[i, 0] = float(-svm.b - w[0] * x[i]) / w[1]
+    # # y = float(-svm.b - w[0] * x) / w[1]
+    # plt.plot(x, y)
     # plt.plot(dataSet[0:100, 0], dataSet[0:100, 1], '.b')
     # plt.plot(dataSet[100:200, 0], dataSet[100:200, 1], '.r')
     plt.show()
