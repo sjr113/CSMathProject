@@ -140,7 +140,7 @@ def calc_prob(pMiu, pSigma, X, K, N, D):
         # inv_pSigma = mat(pSigma[:, :, k]).I
         inv_pSigma = np.linalg.pinv(np.mat(pSigma[:, :, k]))
 
-        tmp = np.sum(np.array((Xshift*inv_pSigma)) * np.array(Xshift), 1) # 这里应变为一列数
+        tmp = np.sum(np.array((Xshift*inv_pSigma)) * np.array(Xshift), 1)
         tmp = np.mat(tmp).T
         # print linalg.det(inv_pSigma),'54545'
 
