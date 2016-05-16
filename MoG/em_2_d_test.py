@@ -54,7 +54,8 @@ def run(Sigma,Mu1,Mu2,k,N,iter_num,Epsilon):
         Old_Mu = copy.deepcopy(Mu)
         e_step(Sigma,k,N)
         m_step(k,N)
-        print i,Mu
+        print "iter num is " + str(i) + " and the Mu is ", Mu
+        # print i,Mu
         if sum(abs(Mu-Old_Mu)) < Epsilon:
             break
 
